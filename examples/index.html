@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>b3d-nav</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0c0d10; color: #f4f0e8; font-family: sans-serif; }
+    canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <script type="module">
+    import * as THREE from "three";
+    import { attachBlenderNav } from "../src/b3d-nav.js";
+    const canvas = document.querySelector("#view");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#0c0d10");
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
+    camera.position.set(4.2, 2.4, 5.4);
+    scene.add(new THREE.AmbientLight("#f4f0e8", 0.5));
+    const sun = new THREE.DirectionalLight("#f4f0e8", 1.3);
+    sun.position.set(3, 6, 2);
+    scene.add(sun);
+    scene.add(new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.4, 1), new THREE.MeshStandardMaterial({ color: "#2c2924" })));
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.35, 28, 20), new THREE.MeshStandardMaterial({ color: "#e3a15a" }));
+    ball.position.set(0.4, 0.55, 0.1);
+    scene.add(ball);
+    attachBlenderNav(camera, canvas, { target: { x: 0, y: 0.4, z: 0 } });
+    function frame() {
+      const w = canvas.clientWidth || 1;
+      const h = canvas.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  </script>
+</body>
+</html>
