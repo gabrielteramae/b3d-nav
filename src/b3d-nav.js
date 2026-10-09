@@ -119,6 +119,13 @@ export function attachBlenderNav(camera, dom, options) {
     }
     function onUp(event) {
         pointers.delete(event.pointerId);
+        if (pointers.size === 1) {
+            const [only] = pointers.values();
+            lastX = only.x;
+            lastY = only.y;
+            pinchDist = 0;
+            mode = "orbit";
+        }
     }
     function onWheel(event) {
         event.preventDefault();
@@ -162,6 +169,7 @@ export function attachBlenderNav(camera, dom, options) {
         }
         apply();
     }
+    const root = globalThis;
     syncFromCamera();
     apply();
     dom.addEventListener("pointerdown", onDown);
@@ -170,7 +178,8 @@ export function attachBlenderNav(camera, dom, options) {
     dom.addEventListener("pointercancel", onUp);
     dom.addEventListener("wheel", onWheel, { passive: false });
     dom.addEventListener("contextmenu", onContext);
-    window.addEventListener("keydown", onKey);
+    if (typeof root.addEventListener === "function")
+        root.addEventListener("keydown", onKey);
     return {
         target,
         setView,
@@ -181,7 +190,8 @@ export function attachBlenderNav(camera, dom, options) {
             dom.removeEventListener("pointercancel", onUp);
             dom.removeEventListener("wheel", onWheel);
             dom.removeEventListener("contextmenu", onContext);
-            window.removeEventListener("keydown", onKey);
+            if (typeof root.removeEventListener === "function")
+                root.removeEventListener("keydown", onKey);
         },
     };
 }
